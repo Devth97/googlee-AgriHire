@@ -69,22 +69,23 @@ export function NewJobForm() {
   const watchedLocation = useWatch({ control: form.control, name: 'location' });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    startTransition(async () => {
-      const result = await createJobAction(values);
-      if (result.success) {
-        toast({
-          title: "Job Posted!",
-          description: "Your new job has been successfully posted.",
-        });
-        form.reset();
-        router.push('/farmer');
-      } else {
-        toast({
-          variant: "destructive",
-          title: "Failed to post job",
-          description: result.error,
-        });
-      }
+    startTransition(() => {
+      createJobAction(values).then((result) => {
+        if (result.success) {
+          toast({
+            title: "Job Posted!",
+            description: "Your new job has been successfully posted.",
+          });
+          form.reset();
+          router.push('/farmer');
+        } else {
+          toast({
+            variant: "destructive",
+            title: "Failed to post job",
+            description: result.error,
+          });
+        }
+      });
     });
   }
   
@@ -291,4 +292,3 @@ export function NewJobForm() {
     </Form>
   );
 }
-
