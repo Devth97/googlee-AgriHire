@@ -1,3 +1,4 @@
+
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -31,9 +32,10 @@ import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
-import { workTypes, districts } from "@/lib/data";
+import { workTypes, districts, mockFarmerJobs } from "@/lib/data";
 import { generateJobDescriptionAction } from "@/lib/actions";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
   location: z.string().min(1, "Please select a location."),
@@ -49,6 +51,7 @@ const formSchema = z.object({
 
 export function NewJobForm() {
   const { toast } = useToast();
+  const router = useRouter();
   const [isGenerating, setIsGenerating] = useState(false);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -64,12 +67,25 @@ export function NewJobForm() {
   const watchedLocation = useWatch({ control: form.control, name: 'location' });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
+    const workTypesLabels = values.workType.map(wt => workTypes.find(w => w.id === wt)?.label || wt);
+    const newJob = {
+      id: new Date().getTime().toString(),
+      title: `New Job in ${values.location}`,
+      location: values.location,
+      date: values.date.toISOString(),
+      workersNeeded: values.workersRequired,
+      workType: workTypesLabels,
+      status: 'Open' as 'Open',
+      farmer: { name: 'You', avatarUrl: 'https://picsum.photos/seed/f5/40/40' },
+    };
+    mockFarmerJobs.unshift(newJob);
+
     toast({
       title: "Job Posted!",
       description: "Your new job has been successfully posted.",
     });
     form.reset();
+    router.push('/farmer');
   }
   
   async function handleGenerateDescription() {

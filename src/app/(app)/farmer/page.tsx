@@ -1,11 +1,24 @@
+
+"use client";
+
 import Link from "next/link";
 import { PlusCircle, Search } from "lucide-react";
+import { usePathname } from 'next/navigation'
+import React from 'react'
+
 
 import { Button } from "@/components/ui/button";
 import { mockFarmerJobs } from "@/lib/data";
 import { JobCard } from "@/components/job-card";
 
 export default function FarmerDashboard() {
+  const pathname = usePathname()
+  const [jobs, setJobs] = React.useState(mockFarmerJobs)
+
+  React.useEffect(() => {
+    setJobs(mockFarmerJobs)
+  }, [pathname])
+
   return (
     <div className="container mx-auto">
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-8">
@@ -21,9 +34,9 @@ export default function FarmerDashboard() {
 
       <h2 className="text-2xl font-bold tracking-tight mb-4">Your Active Jobs</h2>
       
-      {mockFarmerJobs.length > 0 ? (
+      {jobs.length > 0 ? (
          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {mockFarmerJobs.map((job) => (
+          {jobs.map((job) => (
             <JobCard key={job.id} job={job} userType="farmer" />
           ))}
         </div>
