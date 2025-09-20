@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { JobCard } from "@/components/job-card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from '@/components/ui/skeleton';
@@ -31,6 +31,11 @@ export default function WorkerDashboard() {
       setLoading(false);
     }, 1000);
   }, []);
+
+  const handleJobAccepted = useCallback((acceptedJob: Job) => {
+    setRequests(prev => prev.filter(job => job.id !== acceptedJob.id));
+    setConfirmedJobs(prev => [{ ...acceptedJob, status: 'Confirmed' }, ...prev]);
+  }, []);
   
   const renderJobList = (jobs: Job[], emptyTitle: string, emptyMessage: string) => {
     if (loading) {
@@ -46,7 +51,12 @@ export default function WorkerDashboard() {
       return (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mt-4">
           {jobs.map((job) => (
-            <JobCard key={job.id} job={job} userType="worker" />
+            <JobCard 
+              key={job.id} 
+              job={job} 
+              userType="worker" 
+              onJobAccepted={() => handleJobAccepted(job)}
+            />
           ))}
         </div>
       );

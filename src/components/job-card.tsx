@@ -31,6 +31,7 @@ type Job = {
 type JobCardProps = {
   job: Job;
   userType: 'farmer' | 'worker';
+  onJobAccepted?: () => void;
 };
 
 const statusColors = {
@@ -39,7 +40,7 @@ const statusColors = {
   Completed: "bg-gray-100 text-gray-800 border-gray-300 dark:bg-gray-900/50 dark:text-gray-400 dark:border-gray-700",
 };
 
-export function JobCard({ job, userType }: JobCardProps) {
+export function JobCard({ job, userType, onJobAccepted }: JobCardProps) {
   const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
   const [isAccepted, setIsAccepted] = React.useState(job.status === 'Confirmed');
@@ -51,9 +52,12 @@ export function JobCard({ job, userType }: JobCardProps) {
       if (result.success) {
         toast({
           title: "Job Accepted!",
-          description: "This job has been moved to your confirmed list (simulation).",
+          description: "This job has been moved to your confirmed list.",
         });
         setIsAccepted(true);
+        if(onJobAccepted) {
+            onJobAccepted();
+        }
       } else {
         toast({
           variant: "destructive",
