@@ -1,7 +1,7 @@
 
 "use client";
 
-import { Calendar, MapPin, Users, CheckCircle, Clock, Loader2 } from "lucide-react";
+import { Calendar, MapPin, Users, CheckCircle, Clock, Loader2, MessageSquare, Phone, Send, PhoneOff } from "lucide-react";
 import Image from 'next/image';
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -13,9 +13,21 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+  DialogClose,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { acceptJobAction } from "@/lib/actions";
 import React, { useTransition } from "react";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 
 type Job = {
   id: string;
@@ -132,8 +144,84 @@ export function JobCard({ job, userType, onJobAccepted }: JobCardProps) {
         )}
         {userType === 'worker' && currentStatus === 'Confirmed' && (
           <div className="flex w-full gap-2">
-             <Button className="w-full" variant="outline">Chat with Farmer</Button>
-             <Button className="w-full" variant="outline">Call Farmer (Masked)</Button>
+             <Dialog>
+                <DialogTrigger asChild>
+                    <Button className="w-full" variant="outline"><MessageSquare className="mr-2 h-4 w-4" /> Chat</Button>
+                </DialogTrigger>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Chat with {job.farmer.name}</DialogTitle>
+                        <DialogDescription>
+                            Ask questions about the job, location, or payment.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4 py-4 max-h-[400px] overflow-y-auto">
+                        <div className="flex items-end gap-2">
+                            <Avatar className="h-8 w-8">
+                                <AvatarImage src={job.farmer.avatarUrl} alt={job.farmer.name} />
+                                <AvatarFallback>{job.farmer.name.charAt(0)}</AvatarFallback>
+                            </Avatar>
+                            <div className="rounded-lg bg-muted p-3 text-sm">
+                                <p>Hello! I've accepted the job. When should I arrive?</p>
+                            </div>
+                        </div>
+                        <div className="flex items-end gap-2 justify-end">
+                            <div className="rounded-lg bg-primary text-primary-foreground p-3 text-sm">
+                                <p>Hi there! Glad to have you. Please arrive at 8 AM sharp.</p>
+                            </div>
+                             <Avatar className="h-8 w-8">
+                                <AvatarImage src="https://picsum.photos/seed/worker-me/40/40" alt="You" />
+                                <AvatarFallback>Y</AvatarFallback>
+                            </Avatar>
+                        </div>
+                         <div className="flex items-end gap-2">
+                            <Avatar className="h-8 w-8">
+                                <AvatarImage src={job.farmer.avatarUrl} alt={job.farmer.name} />
+                                <AvatarFallback>{job.farmer.name.charAt(0)}</AvatarFallback>
+                            </Avatar>
+                            <div className="rounded-lg bg-muted p-3 text-sm">
+                                <p>The location is on the main road, you can't miss the big green gate.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <DialogFooter>
+                        <div className="flex w-full gap-2">
+                            <Input placeholder="Type your message..." />
+                            <Button><Send className="h-4 w-4"/></Button>
+                        </div>
+                    </DialogFooter>
+                </DialogContent>
+             </Dialog>
+             <Dialog>
+                <DialogTrigger asChild>
+                    <Button className="w-full" variant="outline"><Phone className="mr-2 h-4 w-4" /> Call (Masked)</Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-xs">
+                     <DialogHeader className="text-center">
+                        <DialogTitle>Calling {job.farmer.name}...</DialogTitle>
+                        <DialogDescription>
+                           Connecting via a secure, masked number.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="flex flex-col items-center justify-center p-8 gap-4">
+                        <div className="relative">
+                            <Avatar className="h-24 w-24 border-4 border-primary">
+                                <AvatarImage src={job.farmer.avatarUrl} alt={job.farmer.name} />
+                                <AvatarFallback className="text-4xl">{job.farmer.name.charAt(0)}</AvatarFallback>
+                            </Avatar>
+                             <div className="absolute -bottom-2 -right-2 bg-background p-1 rounded-full">
+                                <Phone className="h-6 w-6 text-green-500 animate-pulse" />
+                            </div>
+                        </div>
+                        <p className="font-semibold text-lg">01:23</p>
+                        <DialogClose asChild>
+                            <Button variant="destructive" size="lg" className="rounded-full w-24 h-16">
+                                <PhoneOff className="h-6 w-6" />
+                            </Button>
+                        </DialogClose>
+                    </div>
+                </DialogContent>
+             </Dialog>
           </div>
         )}
          {userType === 'worker' && currentStatus === 'Completed' && (
