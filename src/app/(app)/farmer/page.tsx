@@ -4,12 +4,10 @@
 import Link from "next/link";
 import { PlusCircle, Search } from "lucide-react";
 import React, { useEffect, useState } from 'react';
-import { collection, onSnapshot, query, orderBy } from "firebase/firestore";
-import { db } from "@/lib/firebase";
-
 import { Button } from "@/components/ui/button";
 import { JobCard } from "@/components/job-card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { mockJobs } from "@/lib/data";
 
 interface Job {
   id: string;
@@ -28,17 +26,11 @@ export default function FarmerDashboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const q = query(collection(db, "jobs"), orderBy("createdAt", "desc"));
-    const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      const jobsData: Job[] = [];
-      querySnapshot.forEach((doc) => {
-        jobsData.push({ id: doc.id, ...doc.data() } as Job);
-      });
-      setJobs(jobsData);
+    // Simulate fetching data
+    setTimeout(() => {
+      setJobs(mockJobs);
       setLoading(false);
-    });
-
-    return () => unsubscribe();
+    }, 1000);
   }, []);
 
   return (

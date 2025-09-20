@@ -2,8 +2,6 @@
 "use server";
 
 import { z } from "zod";
-import { db } from "@/lib/firebase";
-import { collection, addDoc, serverTimestamp, doc, updateDoc } from "firebase/firestore";
 import { revalidatePath } from "next/cache";
 
 const jobFormSchema = z.object({
@@ -26,29 +24,14 @@ export async function createJobAction(values: z.infer<typeof jobFormSchema>) {
         return { error: "Invalid data provided." };
     }
     
-    const { location, date, workType, workersRequired, description } = validatedFields.data;
+    // Simulate a successful API call
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    console.log("New job created (mock):", validatedFields.data);
 
-    try {
-        await addDoc(collection(db, "jobs"), {
-            title: `${workType.join(', ')} in ${location}`,
-            location,
-            date: date.toISOString(),
-            workersNeeded: workersRequired,
-            workType: workType,
-            description: description || "",
-            status: 'Open',
-            farmer: { name: 'Ramesh Kumar', avatarUrl: 'https://picsum.photos/seed/f5/40/40' },
-            createdAt: serverTimestamp()
-        });
-        
-        revalidatePath('/farmer');
-        revalidatePath('/worker');
-        return { success: "Job posted successfully!" };
-
-    } catch (error) {
-        console.error("Error creating job:", error);
-        return { error: "Failed to post job." };
-    }
+    revalidatePath('/farmer');
+    revalidatePath('/worker');
+    return { success: "Job posted successfully!" };
 }
 
 
@@ -57,18 +40,11 @@ export async function acceptJobAction(jobId: string) {
     return { error: "Job ID is missing." };
   }
 
-  try {
-    const jobRef = doc(db, "jobs", jobId);
-    await updateDoc(jobRef, {
-      status: "Confirmed",
-    });
-    
-    revalidatePath('/worker');
-    return { success: true };
-
-  } catch (error) {
-    console.error("Error accepting job:", error);
-    return { error: "Failed to accept the job. Please try again." };
-  }
+  // Simulate a successful API call
+  await new Promise(resolve => setTimeout(resolve, 1000));
+  
+  console.log("Job accepted (mock):", jobId);
+  
+  revalidatePath('/worker');
+  return { success: true };
 }
-

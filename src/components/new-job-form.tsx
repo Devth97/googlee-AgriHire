@@ -6,6 +6,8 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { format } from "date-fns";
 import { Calendar as CalendarIcon, Loader2 } from "lucide-react";
+import React, { useTransition } from "react";
+import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -34,8 +36,6 @@ import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { workTypes, districts } from "@/lib/data";
 import { createJobAction } from "@/lib/actions";
-import { useTransition } from "react";
-import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
   location: z.string().min(1, "Please select a location."),
@@ -64,13 +64,13 @@ export function NewJobForm() {
     },
   });
   
-  async function onSubmit(values: z.infer<typeof formSchema>) {
+  function onSubmit(values: z.infer<typeof formSchema>) {
     startTransition(async () => {
       const result = await createJobAction(values);
       if (result.success) {
         toast({
           title: "Job Posted!",
-          description: "Your new job has been successfully posted.",
+          description: "Your new job has been successfully posted (simulation).",
         });
         form.reset();
         router.push('/farmer');

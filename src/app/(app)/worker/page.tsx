@@ -2,11 +2,10 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import { collection, onSnapshot, query, where, orderBy } from "firebase/firestore";
-import { db } from "@/lib/firebase";
 import { JobCard } from "@/components/job-card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from '@/components/ui/skeleton';
+import { mockJobs } from '@/lib/data';
 
 interface Job {
   id: string;
@@ -25,31 +24,12 @@ export default function WorkerDashboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const requestsQuery = query(collection(db, "jobs"), where("status", "==", "Open"), orderBy("createdAt", "desc"));
-    const confirmedQuery = query(collection(db, "jobs"), where("status", "==", "Confirmed"), orderBy("createdAt", "desc"));
-
-    const unsubscribeRequests = onSnapshot(requestsQuery, (querySnapshot) => {
-      const jobsData: Job[] = [];
-      querySnapshot.forEach((doc) => {
-        jobsData.push({ id: doc.id, ...doc.data() } as Job);
-      });
-      setRequests(jobsData);
+    // Simulate fetching data
+    setTimeout(() => {
+      setRequests(mockJobs.filter(j => j.status === 'Open'));
+      setConfirmedJobs(mockJobs.filter(j => j.status === 'Confirmed'));
       setLoading(false);
-    });
-
-    const unsubscribeConfirmed = onSnapshot(confirmedQuery, (querySnapshot) => {
-      const jobsData: Job[] = [];
-      querySnapshot.forEach((doc) => {
-        jobsData.push({ id: doc.id, ...doc.data() } as Job);
-      });
-      setConfirmedJobs(jobsData);
-      setLoading(false);
-    });
-
-    return () => {
-      unsubscribeRequests();
-      unsubscribeConfirmed();
-    };
+    }, 1000);
   }, []);
   
   const renderJobList = (jobs: Job[], emptyTitle: string, emptyMessage: string) => {

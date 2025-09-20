@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { acceptJobAction } from "@/lib/actions";
-import { useTransition } from "react";
+import React, { useTransition } from "react";
 
 type Job = {
   id: string;
@@ -42,6 +42,8 @@ const statusColors = {
 export function JobCard({ job, userType }: JobCardProps) {
   const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
+  const [isAccepted, setIsAccepted] = React.useState(job.status === 'Confirmed');
+
 
   const handleAcceptJob = () => {
     startTransition(async () => {
@@ -49,8 +51,9 @@ export function JobCard({ job, userType }: JobCardProps) {
       if (result.success) {
         toast({
           title: "Job Accepted!",
-          description: "This job has been moved to your confirmed list.",
+          description: "This job has been moved to your confirmed list (simulation).",
         });
+        setIsAccepted(true);
       } else {
         toast({
           variant: "destructive",
@@ -61,15 +64,17 @@ export function JobCard({ job, userType }: JobCardProps) {
     });
   };
   
+  const currentStatus = isAccepted ? 'Confirmed' : job.status;
+
   return (
     <Card className="flex flex-col h-full hover:shadow-md transition-shadow">
       <CardHeader>
         <div className="flex items-start justify-between">
           <CardTitle className="text-lg font-bold">{job.title}</CardTitle>
-          <Badge className={`${statusColors[job.status]} transition-all`}>
-             {job.status === 'Confirmed' && <CheckCircle className="mr-1 h-3 w-3" />}
-             {job.status === 'Open' && <Clock className="mr-1 h-3 w-3" />}
-             {job.status}
+          <Badge className={`${statusColors[currentStatus]} transition-all`}>
+             {currentStatus === 'Confirmed' && <CheckCircle className="mr-1 h-3 w-3" />}
+             {currentStatus === 'Open' && <Clock className="mr-1 h-3 w-3" />}
+             {currentStatus}
           </Badge>
         </div>
         <CardDescription className="flex items-center gap-2 pt-2">
@@ -109,7 +114,7 @@ export function JobCard({ job, userType }: JobCardProps) {
             View Applicants
           </Button>
         )}
-        {userType === 'worker' && job.status === 'Open' && (
+        {userType === 'worker' && currentStatus === 'Open' && (
           <div className="flex w-full gap-2">
             <Button className="w-full" variant="outline" disabled={isPending}>Decline</Button>
             <Button 
@@ -121,13 +126,13 @@ export function JobCard({ job, userType }: JobCardProps) {
             </Button>
           </div>
         )}
-        {userType === 'worker' && job.status === 'Confirmed' && (
+        {userType === 'worker' && currentStatus === 'Confirmed' && (
           <div className="flex w-full gap-2">
              <Button className="w-full" variant="outline">Chat with Farmer</Button>
              <Button className="w-full" variant="outline">Call Farmer (Masked)</Button>
           </div>
         )}
-         {userType === 'worker' && job.status === 'Completed' && (
+         {userType === 'worker' && currentStatus === 'Completed' && (
           <Button className="w-full" variant="secondary" disabled>Job Completed</Button>
         )}
       </CardFooter>
