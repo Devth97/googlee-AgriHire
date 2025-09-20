@@ -41,7 +41,7 @@ export function AppHeader() {
         {isFarmer && (
             <Link
                 href="/jobs/new"
-                className="text-muted-foreground transition-colors hover:text-foreground"
+                className="text-muted-foreground transition-colors hover:text-foreground px-4 py-2"
             >
                 Post a Job
             </Link>
