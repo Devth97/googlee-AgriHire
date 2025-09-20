@@ -103,4 +103,3 @@ export async function acceptJobAction(jobId: string) {
     return { error: "Failed to accept the job. Please try again." };
   }
 }
-
