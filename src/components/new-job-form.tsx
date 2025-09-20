@@ -34,10 +34,11 @@ import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
-import { workTypes, districts } from "@/lib/data";
+import { workTypes, districts, mockJobs } from "@/lib/data";
 import { suggestJobDescription } from "@/ai/ai-job-description-suggestion";
 
 const formSchema = z.object({
+  title: z.string().min(3, "Please enter a job title."),
   location: z.string().min(1, "Please select a location."),
   date: z.date({
     required_error: "A date for the job is required.",
@@ -59,6 +60,7 @@ export function NewJobForm() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      title: "",
       location: "",
       workType: [],
       workersRequired: 1,
@@ -101,16 +103,30 @@ export function NewJobForm() {
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     startTransition(() => {
-      // Simulate API call since we are using a mock database
+      // Simulate API call by saving to localStorage
       console.log("Form submitted with values:", values);
-      new Promise(resolve => setTimeout(resolve, 1000)).then(() => {
-        toast({
-          title: "Job Posted! (Simulation)",
-          description: "Your new job has been successfully posted.",
-        });
-        form.reset();
-        router.push('/farmer');
+      
+      const newJob = {
+        id: new Date().toISOString(),
+        title: values.title,
+        location: values.location,
+        date: values.date.toISOString(),
+        workersNeeded: values.workersRequired,
+        workType: values.workType,
+        status: 'Open',
+        farmer: { name: 'You (Farmer)', avatarUrl: 'https://picsum.photos/seed/f-you/40/40' },
+        description: values.description,
+      };
+
+      const existingJobs = JSON.parse(localStorage.getItem('mockJobs') || '[]');
+      localStorage.setItem('mockJobs', JSON.stringify([newJob, ...existingJobs]));
+      
+      toast({
+        title: "Job Posted!",
+        description: "Your new job has been successfully posted and saved locally.",
       });
+      form.reset();
+      router.push('/farmer');
     });
   }
 
@@ -119,6 +135,19 @@ export function NewJobForm() {
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <Card>
           <CardContent className="pt-6 grid gap-6">
+             <FormField
+                control={form.control}
+                name="title"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Job Title</FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g., Harvesting Tomatoes" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             <div className="grid md:grid-cols-2 gap-6">
               <FormField
                 control={form.control}

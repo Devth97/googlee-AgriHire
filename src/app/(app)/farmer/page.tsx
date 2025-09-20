@@ -26,11 +26,20 @@ export default function FarmerDashboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Simulate fetching data
-    setTimeout(() => {
-      setJobs(mockJobs);
+    // Simulate fetching data, combining localStorage and mockJobs
+    const timer = setTimeout(() => {
+      const storedJobs = JSON.parse(localStorage.getItem('mockJobs') || '[]');
+      // A Set to keep track of job IDs to avoid duplicates
+      const jobIds = new Set(storedJobs.map((j: Job) => j.id));
+      const combinedJobs = [
+        ...storedJobs,
+        ...mockJobs.filter((j: Job) => !jobIds.has(j.id))
+      ];
+      setJobs(combinedJobs);
       setLoading(false);
-    }, 1000);
+    }, 500);
+
+    return () => clearTimeout(timer);
   }, []);
 
   return (
