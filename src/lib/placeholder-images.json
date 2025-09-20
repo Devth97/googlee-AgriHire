@@ -1,3 +1,28 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "farmer-avatar",
+      "description": "Avatar for a farmer user",
+      "imageUrl": "https://picsum.photos/seed/farmer1/200/200",
+      "imageHint": "farmer portrait"
+    },
+    {
+      "id": "worker-avatar",
+      "description": "Avatar for a worker user",
+      "imageUrl": "https://picsum.photos/seed/worker1/200/200",
+      "imageHint": "worker portrait"
+    },
+    {
+      "id": "user-avatar-1",
+      "description": "Generic user avatar 1",
+      "imageUrl": "https://picsum.photos/seed/u1/200/200",
+      "imageHint": "person smiling"
+    },
+    {
+      "id": "user-avatar-2",
+      "description": "Generic user avatar 2",
+      "imageUrl": "https://picsum.photos/seed/u2/200/200",
+      "imageHint": "person field"
+    }
+  ]
 }
