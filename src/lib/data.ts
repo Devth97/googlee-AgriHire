@@ -1,3 +1,4 @@
+
 export const languages = [
   { code: 'en', name: 'English' },
   { code: 'kn', name: 'ಕನ್ನಡ' }, // Kannada
@@ -57,7 +58,7 @@ export const mockJobs = [
     status: 'Confirmed',
     farmer: { name: 'Mani', avatarUrl: 'https://picsum.photos/seed/f3/40/40' },
   },
-    {
+  {
     id: '4',
     title: 'Mango Orchard Irrigation',
     location: 'Chennai',
@@ -66,6 +67,26 @@ export const mockJobs = [
     workType: ['Irrigation'],
     status: 'Completed',
     farmer: { name: 'Anand', avatarUrl: 'https://picsum.photos/seed/f4/40/40' },
+  },
+  {
+    id: '5',
+    title: 'Livestock Feeding in Belagavi',
+    location: 'Belagavi',
+    date: '2024-08-25',
+    workersNeeded: 2,
+    workType: ['Livestock Care'],
+    status: 'Open',
+    farmer: { name: 'Gopal', avatarUrl: 'https://picsum.photos/seed/f6/40/40' },
+  },
+  {
+    id: '6',
+    title: 'Pesticide Spraying for Cotton Crop',
+    location: 'Mumbai',
+    date: '2024-08-28',
+    workersNeeded: 8,
+    workType: ['Pesticide Spraying'],
+    status: 'Open',
+    farmer: { name: 'Vijay', avatarUrl: 'https://picsum.photos/seed/f7/40/40' },
   },
 ];
 
