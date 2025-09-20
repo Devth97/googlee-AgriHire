@@ -7,7 +7,10 @@ import { languages } from "@/lib/data";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Logo } from "@/components/logo";
-import { CheckCircle, Tractor, Wheat } from "lucide-react";
+import { CheckCircle, Tractor, Wheat, KeyRound, Phone } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 type Step = "language" | "role" | "login";
 type Role = "farmer" | "worker";
@@ -25,10 +28,16 @@ const translations: Record<string, Record<string, string>> = {
     iAmLookingForWork: "I am looking for work",
     back: "Back",
     oneLastStep: "One Last Step",
-    signIn: "Sign in to your {role} account.",
-    mockLoginMessage: "In a real app, this would be a secure OTP login. For now, just proceed to your dashboard.",
+    signIn: "Sign in to your account",
+    signUp: "Create a new account",
+    signInAction: "Sign In",
+    signUpAction: "Sign Up",
+    phoneNumber: "Phone Number",
+    password: "Password",
     proceedToDashboard: "Proceed to Dashboard",
     goBack: "Go Back",
+    signInToYourRole: "Sign in to your {role} account.",
+    createYourRole: "Create your {role} account.",
   },
   kn: {
     welcome: "ಅಗ್ರಿಕನೆಕ್ಟ್‌ಗೆ ಸುಸ್ವಾಗತ",
@@ -42,10 +51,16 @@ const translations: Record<string, Record<string, string>> = {
     iAmLookingForWork: "ನಾನು ಕೆಲಸ ಹುಡುಕುತ್ತಿದ್ದೇನೆ",
     back: "ಹಿಂದೆ",
     oneLastStep: "ಒಂದು ಕೊನೆಯ ಹೆಜ್ಜೆ",
-    signIn: "ನಿಮ್ಮ {role} ಖಾತೆಗೆ ಸೈನ್ ಇನ್ ಮಾಡಿ.",
-    mockLoginMessage: "ನೈಜ ಅಪ್ಲಿಕೇಶನ್‌ನಲ್ಲಿ, ಇದು ಸುರಕ್ಷಿತ OTP ಲಾಗಿನ್ ಆಗಿರುತ್ತದೆ. ಸದ್ಯಕ್ಕೆ, ನಿಮ್ಮ ಡ್ಯಾಶ್‌ಬೋರ್ಡ್‌ಗೆ ಮುಂದುವರಿಯಿರಿ.",
+    signIn: "ನಿಮ್ಮ ಖಾತೆಗೆ ಸೈನ್ ಇನ್ ಮಾಡಿ",
+    signUp: "ಹೊಸ ಖಾತೆಯನ್ನು ತೆರೆಯಿರಿ",
+    signInAction: "ಸೈನ್ ಇನ್ ಮಾಡಿ",
+    signUpAction: "ಸೈನ್ ಅಪ್ ಮಾಡಿ",
+    phoneNumber: "ದೂರವಾಣಿ ಸಂಖ್ಯೆ",
+    password: "ಪಾಸ್ವರ್ಡ್",
     proceedToDashboard: "ಡ್ಯಾಶ್‌ಬೋರ್ಡ್‌ಗೆ ಮುಂದುವರಿಯಿರಿ",
     goBack: "ಹಿಂದಕ್ಕೆ ಹೋಗು",
+    signInToYourRole: "ನಿಮ್ಮ {role} ಖಾತೆಗೆ ಸೈನ್ ಇನ್ ಮಾಡಿ.",
+    createYourRole: "ನಿಮ್ಮ {role} ಖಾತೆಯನ್ನು ರಚಿಸಿ.",
   },
   ml: {
     welcome: "അഗ്രികണക്റ്റിലേക്ക് സ്വാഗതം",
@@ -59,10 +74,16 @@ const translations: Record<string, Record<string, string>> = {
     iAmLookingForWork: "ഞാൻ ജോലി അന്വേഷിക്കുകയാണ്",
     back: "തിരികെ",
     oneLastStep: "അവസാനമായി ഒരു പടി കൂടി",
-    signIn: "നിങ്ങളുടെ {role} അക്കൗണ്ടിലേക്ക് സൈൻ ഇൻ ചെയ്യുക.",
-    mockLoginMessage: "ഒരു യഥാർത്ഥ അപ്ലിക്കേഷനിൽ, ഇത് ഒരു സുരക്ഷിത OTP ലോഗിൻ ആയിരിക്കും. തൽക്കാലം, നിങ്ങളുടെ ഡാഷ്‌ബോർഡിലേക്ക് പോകുക.",
+    signIn: "നിങ്ങളുടെ അക്കൗണ്ടിൽ സൈൻ ഇൻ ചെയ്യുക",
+    signUp: "പുതിയ അക്കൗണ്ട് ഉണ്ടാക്കുക",
+    signInAction: "സൈൻ ഇൻ ചെയ്യുക",
+    signUpAction: "സൈൻ അപ്പ് ചെയ്യുക",
+    phoneNumber: "ഫോൺ നമ്പർ",
+    password: "പാസ്സ്വേർഡ്",
     proceedToDashboard: "ഡാഷ്‌ബോർഡിലേക്ക് പോകുക",
     goBack: "തിരികെ പോകുക",
+    signInToYourRole: "നിങ്ങളുടെ {role} അക്കൗണ്ടിലേക്ക് സൈൻ ഇൻ ചെയ്യുക.",
+    createYourRole: "നിങ്ങളുടെ {role} അക്കൗണ്ട് സൃഷ്ടിക്കുക.",
   },
   ta: {
     welcome: "அக்ரிகனெக்ட்டுக்கு வரவேற்கிறோம்",
@@ -76,10 +97,16 @@ const translations: Record<string, Record<string, string>> = {
     iAmLookingForWork: "நான் வேலை தேடுகிறேன்",
     back: "பின்னால்",
     oneLastStep: "இன்னும் ஒரு படி",
-    signIn: "உங்கள் {role} கணக்கில் உள்நுழைக.",
-    mockLoginMessage: "ஒரு உண்மையான பயன்பாட்டில், இது ஒரு பாதுகாப்பான OTP உள்நுழைவாக இருக்கும். இப்போதைக்கு, உங்கள் டாஷ்போர்டுக்குச் செல்லவும்.",
+    signIn: "உங்கள் கணக்கில் உள்நுழையவும்",
+    signUp: "புதிய கணக்கை உருவாக்கவும்",
+    signInAction: "உள்நுழையவும்",
+    signUpAction: "பதிவுபெறுக",
+    phoneNumber: "தொலைபேசி எண்",
+    password: "கடவுச்சொல்",
     proceedToDashboard: "டாஷ்போர்டுக்குச் செல்லவும்",
     goBack: "பின் செல்",
+    signInToYourRole: "உங்கள் {role} கணக்கில் உள்நுழைக.",
+    createYourRole: "உங்கள் {role} கணக்கை உருவாக்கவும்.",
   },
   hi: {
     welcome: "एग्रीकनेक्ट में आपका स्वागत है",
@@ -93,10 +120,16 @@ const translations: Record<string, Record<string, string>> = {
     iAmLookingForWork: "मैं काम की तलाश में हूं",
     back: "वापस",
     oneLastStep: "एक आखिरी कदम",
-    signIn: "अपने {role} खाते में साइन इन करें।",
-    mockLoginMessage: "एक वास्तविक ऐप में, यह एक सुरक्षित ओटीपी लॉगिन होगा। अभी के लिए, बस अपने डैशबोर्ड पर आगे बढ़ें।",
+    signIn: "अपने खाते में साइन इन करें",
+    signUp: "नया खाता बनाएँ",
+    signInAction: "साइन इन करें",
+    signUpAction: "साइन अप करें",
+    phoneNumber: "फोन नंबर",
+    password: "पासवर्ड",
     proceedToDashboard: "डैशबोर्ड पर जाएं",
     goBack: "वापस जाओ",
+    signInToYourRole: "अपने {role} खाते में साइन इन करें।",
+    createYourRole: "अपना {role} खाता बनाएँ।",
   },
 };
 
@@ -160,7 +193,7 @@ export function OnboardingFlow() {
             </CardHeader>
             <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Card
-                className={`p-4 text-center cursor-pointer hover:shadow-lg transition-shadow ${
+                className={`p-4 text-center cursor-pointer hover:shadow-lg transition-shadow relative ${
                   selectedRole === "farmer" ? "ring-2 ring-primary" : ""
                 }`}
                 onClick={() => setSelectedRole("farmer")}
@@ -171,7 +204,7 @@ export function OnboardingFlow() {
                 {selectedRole === "farmer" && <CheckCircle className="absolute top-2 right-2 h-5 w-5 text-primary" />}
               </Card>
               <Card
-                className={`p-4 text-center cursor-pointer hover:shadow-lg transition-shadow ${
+                className={`p-4 text-center cursor-pointer hover:shadow-lg transition-shadow relative ${
                   selectedRole === "worker" ? "ring-2 ring-primary" : ""
                 }`}
                 onClick={() => setSelectedRole("worker")}
@@ -192,6 +225,7 @@ export function OnboardingFlow() {
         );
         
       case "login":
+        const roleText = selectedRole ? (selectedRole === 'farmer' ? t.farmer : t.worker) : '';
         return (
           <Card className="w-full max-w-lg animate-in fade-in-50 duration-500 shadow-2xl">
             <CardHeader className="text-center">
@@ -199,13 +233,47 @@ export function OnboardingFlow() {
                 <Logo />
               </div>
               <CardTitle className="text-2xl font-headline">{t.oneLastStep}</CardTitle>
-              <CardDescription>{t.signIn.replace('{role}', selectedRole || '')}</CardDescription>
+               <CardDescription>
+                {t.signInToYourRole.replace('{role}', roleText)}
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-                <p className="text-center text-muted-foreground">{t.mockLoginMessage}</p>
-                <Button onClick={handleLogin} className="w-full" size="lg">
-                    {t.proceedToDashboard}
-                </Button>
+                <Tabs defaultValue="signin" className="w-full">
+                    <TabsList className="grid w-full grid-cols-2">
+                        <TabsTrigger value="signin">{t.signIn}</TabsTrigger>
+                        <TabsTrigger value="signup">{t.signUp}</TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="signin" className="pt-4">
+                        <div className="space-y-4">
+                            <div className="relative">
+                                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                                <Input type="tel" placeholder={t.phoneNumber} className="pl-10" />
+                            </div>
+                             <div className="relative">
+                                <KeyRound className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                                <Input type="password" placeholder={t.password} className="pl-10" />
+                            </div>
+                            <Button onClick={handleLogin} className="w-full" size="lg">
+                                {t.signInAction}
+                            </Button>
+                        </div>
+                    </TabsContent>
+                    <TabsContent value="signup" className="pt-4">
+                        <div className="space-y-4">
+                            <div className="relative">
+                                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                                <Input type="tel" placeholder={t.phoneNumber} className="pl-10" />
+                            </div>
+                             <div className="relative">
+                                <KeyRound className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                                <Input type="password" placeholder={t.password} className="pl-10" />
+                            </div>
+                            <Button onClick={handleLogin} className="w-full" size="lg">
+                                {t.signUpAction}
+                            </Button>
+                        </div>
+                    </TabsContent>
+                </Tabs>
                 <Button variant="link" onClick={() => setStep("role")} className="w-full">
                     {t.goBack}
                 </Button>
