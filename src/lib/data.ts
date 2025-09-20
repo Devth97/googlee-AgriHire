@@ -27,72 +27,6 @@ export const districts = [
     { value: 'mumbai', label: 'Mumbai' },
 ];
 
-export const mockJobs = [
-  {
-    id: '1',
-    title: 'Urgent: Tomato Harvesting',
-    location: 'Bengaluru Urban',
-    date: '2024-08-15',
-    workersNeeded: 10,
-    workType: ['Harvesting'],
-    status: 'Open',
-    farmer: { name: 'Ramesh', avatarUrl: 'https://picsum.photos/seed/f1/40/40' },
-  },
-  {
-    id: '2',
-    title: 'Weeding for Paddy Fields',
-    location: 'Mysuru',
-    date: '2024-08-20',
-    workersNeeded: 5,
-    workType: ['Weeding'],
-    status: 'Open',
-    farmer: { name: 'Sita', avatarUrl: 'https://picsum.photos/seed/f2/40/40' },
-  },
-  {
-    id: '3',
-    title: 'Planting Season Prep',
-    location: 'Kochi',
-    date: '2024-09-01',
-    workersNeeded: 20,
-    workType: ['Planting', 'Ploughing'],
-    status: 'Confirmed',
-    farmer: { name: 'Mani', avatarUrl: 'https://picsum.photos/seed/f3/40/40' },
-  },
-  {
-    id: '4',
-    title: 'Mango Orchard Irrigation',
-    location: 'Chennai',
-    date: '2024-08-18',
-    workersNeeded: 3,
-    workType: ['Irrigation'],
-    status: 'Completed',
-    farmer: { name: 'Anand', avatarUrl: 'https://picsum.photos/seed/f4/40/40' },
-  },
-  {
-    id: '5',
-    title: 'Livestock Feeding in Belagavi',
-    location: 'Belagavi',
-    date: '2024-08-25',
-    workersNeeded: 2,
-    workType: ['Livestock Care'],
-    status: 'Open',
-    farmer: { name: 'Gopal', avatarUrl: 'https://picsum.photos/seed/f6/40/40' },
-  },
-  {
-    id: '6',
-    title: 'Pesticide Spraying for Cotton Crop',
-    location: 'Mumbai',
-    date: '2024-08-28',
-    workersNeeded: 8,
-    workType: ['Pesticide Spraying'],
-    status: 'Open',
-    farmer: { name: 'Vijay', avatarUrl: 'https://picsum.photos/seed/f7/40/40' },
-  },
-];
-
-export const mockFarmerJobs = mockJobs.slice(0, 2);
-export const mockWorkerRequests = mockJobs.slice(1, 3);
-export const mockWorkerConfirmedJobs = mockJobs.slice(3, 4);
 
 export const mockProfile = {
   name: "Sunita Kumari",
@@ -103,3 +37,4 @@ export const mockProfile = {
   availability: [new Date(2024, 7, 20), new Date(2024, 7, 22), new Date(2024, 7, 23)],
   rating: 4.5,
 };
+

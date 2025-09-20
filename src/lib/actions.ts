@@ -1,13 +1,13 @@
 
 "use server";
 
-import { suggestDescription } from "@/ai/flows/job-description";
 import { z } from "zod";
 import { db } from "@/lib/firebase";
 import { collection, addDoc, serverTimestamp, doc, updateDoc } from "firebase/firestore";
 import { revalidatePath } from "next/cache";
+import { suggestJobDescription } from "@/ai/ai-job-description-suggestion";
 
-const schema = z.object({
+const generateDescriptionSchema = z.object({
   workType: z.array(z.string()).min(1, { message: 'Please select at least one work type.' }),
   location: z.string().min(1, { message: 'Please select a location.' }),
 });
@@ -18,7 +18,7 @@ export async function generateJobDescriptionAction(formData: FormData) {
     location: formData.get('location') as string,
   };
 
-  const parsed = schema.safeParse(data);
+  const parsed = generateDescriptionSchema.safeParse(data);
 
   if (!parsed.success) {
     const errorMessages = parsed.error.issues.map(issue => issue.message).join(' ');
@@ -26,11 +26,12 @@ export async function generateJobDescriptionAction(formData: FormData) {
   }
 
   try {
-    const description = await suggestDescription({
-      workType: parsed.data.workType,
-      location: parsed.data.location,
+    const result = await suggestJobDescription({
+      ...parsed.data,
+      date: new Date().toISOString(), // This can be improved by passing date from form
+      numWorkersNeeded: 0, // This can be improved by passing from form
     });
-    return { description };
+    return { description: result.jobDescription };
   } catch (e) {
     console.error(e);
     return { error: 'Failed to generate description. Please try again.' };
@@ -61,14 +62,14 @@ export async function createJobAction(values: z.infer<typeof jobFormSchema>) {
 
     try {
         await addDoc(collection(db, "jobs"), {
-            title: `Job in ${location}`,
+            title: `${workType.join(', ')} in ${location}`,
             location,
             date: date.toISOString(),
             workersNeeded: workersRequired,
             workType: workType,
             description: description || "",
             status: 'Open',
-            farmer: { name: 'You', avatarUrl: 'https://picsum.photos/seed/f5/40/40' },
+            farmer: { name: 'Ramesh Kumar', avatarUrl: 'https://picsum.photos/seed/f5/40/40' },
             createdAt: serverTimestamp()
         });
         
@@ -102,3 +103,4 @@ export async function acceptJobAction(jobId: string) {
     return { error: "Failed to accept the job. Please try again." };
   }
 }
+

@@ -15,7 +15,7 @@ import {z} from 'genkit';
 
 const SuggestJobDescriptionInputSchema = z.object({
   workType: z
-    .string()
+    .array(z.string())
     .describe('The type of work required for the job (e.g., harvesting, weeding).'),
   location: z.string().describe('The location of the job (district, city, or village).'),
   date: z.string().describe('The date when the job needs to be performed.'),
