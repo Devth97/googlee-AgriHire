@@ -82,7 +82,7 @@ export function NewJobForm() {
         const result = await suggestJobDescription({
             workType,
             location,
-            date: date.toISOString(),
+            date: format(date, 'PPP'), // Correctly format the date
             numWorkersNeeded: workersRequired,
             additionalDetails: description,
         });
@@ -101,7 +101,7 @@ export function NewJobForm() {
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     startTransition(() => {
-      // Simulate API call
+      // Simulate API call since we are using a mock database
       console.log("Form submitted with values:", values);
       new Promise(resolve => setTimeout(resolve, 1000)).then(() => {
         toast({
