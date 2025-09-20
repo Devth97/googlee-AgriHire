@@ -68,11 +68,11 @@ export function NewJobForm() {
   
   const handleSuggestDescription = async () => {
     const { workType, location, date, workersRequired, description } = form.getValues();
-    if (!workType.length || !location || !date) {
+    if (!workType.length || !location) {
         toast({
             variant: 'destructive',
             title: 'Please fill in details',
-            description: 'Work Type, Location, and Date are needed to suggest a description.',
+            description: 'Work Type and Location are needed to suggest a description.',
         });
         return;
     }
@@ -82,7 +82,7 @@ export function NewJobForm() {
         const result = await suggestJobDescription({
             workType,
             location,
-            date: format(date, 'PPP'), // Correctly format the date
+            date: date ? format(date, 'PPP') : 'Not specified',
             numWorkersNeeded: workersRequired,
             additionalDetails: description,
         });
