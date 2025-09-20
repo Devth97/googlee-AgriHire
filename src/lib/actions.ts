@@ -5,38 +5,6 @@ import { z } from "zod";
 import { db } from "@/lib/firebase";
 import { collection, addDoc, serverTimestamp, doc, updateDoc } from "firebase/firestore";
 import { revalidatePath } from "next/cache";
-import { suggestJobDescription } from "@/ai/ai-job-description-suggestion";
-
-const generateDescriptionSchema = z.object({
-  workType: z.array(z.string()).min(1, { message: 'Please select at least one work type.' }),
-  location: z.string().min(1, { message: 'Please select a location.' }),
-});
-
-export async function generateJobDescriptionAction(formData: FormData) {
-  const data = {
-    workType: formData.getAll('workType').map(String),
-    location: formData.get('location') as string,
-  };
-
-  const parsed = generateDescriptionSchema.safeParse(data);
-
-  if (!parsed.success) {
-    const errorMessages = parsed.error.issues.map(issue => issue.message).join(' ');
-    return { error: errorMessages || 'Work type and location are required to generate a description.' };
-  }
-
-  try {
-    const result = await suggestJobDescription({
-      ...parsed.data,
-      date: new Date().toISOString(), // This can be improved by passing date from form
-      numWorkersNeeded: 0, // This can be improved by passing from form
-    });
-    return { description: result.jobDescription };
-  } catch (e) {
-    console.error(e);
-    return { error: 'Failed to generate description. Please try again.' };
-  }
-}
 
 const jobFormSchema = z.object({
   location: z.string().min(1, "Please select a location."),
@@ -103,3 +71,4 @@ export async function acceptJobAction(jobId: string) {
     return { error: "Failed to accept the job. Please try again." };
   }
 }
+

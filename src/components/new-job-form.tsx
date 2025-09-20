@@ -2,10 +2,10 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm, useWatch } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { format } from "date-fns";
-import { Calendar as CalendarIcon, Loader2, Sparkles } from "lucide-react";
+import { Calendar as CalendarIcon, Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -33,8 +33,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { workTypes, districts } from "@/lib/data";
-import { generateJobDescriptionAction, createJobAction } from "@/lib/actions";
-import { useState, useTransition } from "react";
+import { createJobAction } from "@/lib/actions";
+import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
@@ -52,7 +52,6 @@ const formSchema = z.object({
 export function NewJobForm() {
   const { toast } = useToast();
   const router = useRouter();
-  const [isGenerating, setIsGenerating] = useState(false);
   const [isPending, startTransition] = useTransition();
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -65,61 +64,24 @@ export function NewJobForm() {
     },
   });
   
-  const watchedWorkType = useWatch({ control: form.control, name: 'workType' });
-  const watchedLocation = useWatch({ control: form.control, name: 'location' });
-
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    startTransition(() => {
-      createJobAction(values).then((result) => {
-        if (result.success) {
-          toast({
-            title: "Job Posted!",
-            description: "Your new job has been successfully posted.",
-          });
-          form.reset();
-          router.push('/farmer');
-        } else {
-          toast({
-            variant: "destructive",
-            title: "Failed to post job",
-            description: result.error,
-          });
-        }
-      });
-    });
-  }
-  
-  async function handleGenerateDescription() {
-    if (!watchedLocation || watchedWorkType.length === 0) {
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    startTransition(async () => {
+      const result = await createJobAction(values);
+      if (result.success) {
         toast({
-            variant: "destructive",
-            title: "Missing Information",
-            description: "Please select a location and at least one work type to generate a description."
-        })
-        return;
-    }
-
-    setIsGenerating(true);
-    const formData = new FormData();
-    watchedWorkType.forEach(wt => formData.append('workType', wt));
-    formData.append('location', watchedLocation);
-    
-    const result = await generateJobDescriptionAction(formData);
-
-    if (result.error) {
-        toast({
-            variant: "destructive",
-            title: "Generation Failed",
-            description: result.error,
+          title: "Job Posted!",
+          description: "Your new job has been successfully posted.",
         });
-    } else if (result.description) {
-        form.setValue("description", result.description);
+        form.reset();
+        router.push('/farmer');
+      } else {
         toast({
-            title: "Description Generated!",
-            description: "The AI has suggested a job description for you."
-        })
-    }
-    setIsGenerating(false);
+          variant: "destructive",
+          title: "Failed to post job",
+          description: result.error,
+        });
+      }
+    });
   }
 
   return (
@@ -260,14 +222,6 @@ export function NewJobForm() {
                   <FormItem>
                     <div className="flex items-center justify-between">
                         <FormLabel>Job Description (Optional)</FormLabel>
-                        <Button type="button" size="sm" variant="outline" onClick={handleGenerateDescription} disabled={isGenerating}>
-                            {isGenerating ? (
-                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            ) : (
-                                <Sparkles className="mr-2 h-4 w-4 text-accent" />
-                            )}
-                            Suggest with AI
-                        </Button>
                     </div>
                     <FormControl>
                       <Textarea
