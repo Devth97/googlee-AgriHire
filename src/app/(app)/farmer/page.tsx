@@ -3,21 +3,43 @@
 
 import Link from "next/link";
 import { PlusCircle, Search } from "lucide-react";
-import { usePathname } from 'next/navigation'
-import React from 'react'
-
+import React, { useEffect, useState } from 'react';
+import { collection, onSnapshot, query, orderBy } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 
 import { Button } from "@/components/ui/button";
-import { mockFarmerJobs } from "@/lib/data";
 import { JobCard } from "@/components/job-card";
+import { Skeleton } from "@/components/ui/skeleton";
+
+interface Job {
+  id: string;
+  title: string;
+  location: string;
+  date: string;
+  workersNeeded: number;
+  workType: string[];
+  status: 'Open' | 'Confirmed' | 'Completed';
+  farmer: { name: string; avatarUrl: string };
+}
+
 
 export default function FarmerDashboard() {
-  const pathname = usePathname()
-  const [jobs, setJobs] = React.useState(mockFarmerJobs)
+  const [jobs, setJobs] = useState<Job[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  React.useEffect(() => {
-    setJobs(mockFarmerJobs)
-  }, [pathname])
+  useEffect(() => {
+    const q = query(collection(db, "jobs"), orderBy("createdAt", "desc"));
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      const jobsData: Job[] = [];
+      querySnapshot.forEach((doc) => {
+        jobsData.push({ id: doc.id, ...doc.data() } as Job);
+      });
+      setJobs(jobsData);
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   return (
     <div className="container mx-auto">
@@ -34,7 +56,13 @@ export default function FarmerDashboard() {
 
       <h2 className="text-2xl font-bold tracking-tight mb-4">Your Active Jobs</h2>
       
-      {jobs.length > 0 ? (
+      {loading ? (
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <Skeleton className="h-64 w-full" />
+          <Skeleton className="h-64 w-full" />
+          <Skeleton className="h-64 w-full" />
+        </div>
+      ) : jobs.length > 0 ? (
          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {jobs.map((job) => (
             <JobCard key={job.id} job={job} userType="farmer" />

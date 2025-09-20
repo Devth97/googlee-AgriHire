@@ -2,6 +2,9 @@
 
 import { suggestDescription } from "@/ai/flows/job-description";
 import { z } from "zod";
+import { db } from "@/lib/firebase";
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { revalidatePath } from "next/cache";
 
 const schema = z.object({
   workType: z.array(z.string()).min(1, { message: 'Please select at least one work type.' }),
@@ -31,4 +34,50 @@ export async function generateJobDescriptionAction(formData: FormData) {
     console.error(e);
     return { error: 'Failed to generate description. Please try again.' };
   }
+}
+
+const jobFormSchema = z.object({
+  location: z.string().min(1, "Please select a location."),
+  date: z.date({
+    required_error: "A date for the job is required.",
+  }),
+  workType: z.array(z.string()).refine((value) => value.some((item) => item), {
+    message: "You have to select at least one work type.",
+  }),
+  workersRequired: z.coerce.number().min(1, "At least one worker is required."),
+  description: z.string().optional(),
+});
+
+
+export async function createJobAction(values: unknown) {
+    const validatedFields = jobFormSchema.safeParse(values);
+
+    if (!validatedFields.success) {
+        return { error: "Invalid data provided." };
+    }
+    
+    const { location, date, workType, workersRequired, description } = validatedFields.data;
+
+    try {
+        const workTypesLabels = workType; // Assuming workType is already the label array
+        
+        await addDoc(collection(db, "jobs"), {
+            title: `New Job in ${location}`,
+            location,
+            date: date.toISOString(),
+            workersNeeded: workersRequired,
+            workType: workTypesLabels,
+            description: description || "",
+            status: 'Open',
+            farmer: { name: 'You', avatarUrl: 'https://picsum.photos/seed/f5/40/40' },
+            createdAt: serverTimestamp()
+        });
+        
+        revalidatePath('/farmer');
+        return { success: "Job posted successfully!" };
+
+    } catch (error) {
+        console.error("Error creating job:", error);
+        return { error: "Failed to post job." };
+    }
 }

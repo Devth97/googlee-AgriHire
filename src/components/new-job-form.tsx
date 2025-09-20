@@ -32,9 +32,9 @@ import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
-import { workTypes, districts, mockFarmerJobs } from "@/lib/data";
-import { generateJobDescriptionAction } from "@/lib/actions";
-import { useState } from "react";
+import { workTypes, districts } from "@/lib/data";
+import { generateJobDescriptionAction, createJobAction } from "@/lib/actions";
+import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
@@ -53,6 +53,8 @@ export function NewJobForm() {
   const { toast } = useToast();
   const router = useRouter();
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isPending, startTransition] = useTransition();
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -67,25 +69,23 @@ export function NewJobForm() {
   const watchedLocation = useWatch({ control: form.control, name: 'location' });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    const workTypesLabels = values.workType.map(wt => workTypes.find(w => w.id === wt)?.label || wt);
-    const newJob = {
-      id: new Date().getTime().toString(),
-      title: `New Job in ${values.location}`,
-      location: values.location,
-      date: values.date.toISOString(),
-      workersNeeded: values.workersRequired,
-      workType: workTypesLabels,
-      status: 'Open' as 'Open',
-      farmer: { name: 'You', avatarUrl: 'https://picsum.photos/seed/f5/40/40' },
-    };
-    mockFarmerJobs.unshift(newJob);
-
-    toast({
-      title: "Job Posted!",
-      description: "Your new job has been successfully posted.",
+    startTransition(async () => {
+      const result = await createJobAction(values);
+      if (result.success) {
+        toast({
+          title: "Job Posted!",
+          description: "Your new job has been successfully posted.",
+        });
+        form.reset();
+        router.push('/farmer');
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Failed to post job",
+          description: result.error,
+        });
+      }
     });
-    form.reset();
-    router.push('/farmer');
   }
   
   async function handleGenerateDescription() {
@@ -99,8 +99,9 @@ export function NewJobForm() {
     }
 
     setIsGenerating(true);
+    const workTypeLabels = watchedWorkType.map(id => workTypes.find(w => w.id === id)?.label || id);
     const formData = new FormData();
-    watchedWorkType.forEach(wt => formData.append('workType', wt));
+    workTypeLabels.forEach(wt => formData.append('workType', wt));
     formData.append('location', watchedLocation);
     
     const result = await generateJobDescriptionAction(formData);
@@ -207,6 +208,7 @@ export function NewJobForm() {
                       control={form.control}
                       name="workType"
                       render={({ field }) => {
+                        const workTypeLabel = item.label;
                         return (
                           <FormItem
                             key={item.id}
@@ -214,13 +216,13 @@ export function NewJobForm() {
                           >
                             <FormControl>
                               <Checkbox
-                                checked={field.value?.includes(item.id)}
+                                checked={field.value?.includes(workTypeLabel)}
                                 onCheckedChange={(checked) => {
                                   return checked
-                                    ? field.onChange([...(field.value || []), item.id])
+                                    ? field.onChange([...(field.value || []), workTypeLabel])
                                     : field.onChange(
                                         field.value?.filter(
-                                          (value) => value !== item.id
+                                          (value) => value !== workTypeLabel
                                         )
                                       );
                                 }}
@@ -281,7 +283,10 @@ export function NewJobForm() {
               />
           </CardContent>
           <CardFooter>
-            <Button type="submit" size="lg" className="w-full md:w-auto ml-auto">Review & Post Job</Button>
+            <Button type="submit" size="lg" className="w-full md:w-auto ml-auto" disabled={isPending}>
+              {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Review & Post Job
+            </Button>
           </CardFooter>
         </Card>
       </form>
