@@ -35,7 +35,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { workTypes, districts } from "@/lib/data";
-import { createJobAction } from "@/lib/actions";
 
 const formSchema = z.object({
   location: z.string().min(1, "Please select a location."),
@@ -65,22 +64,16 @@ export function NewJobForm() {
   });
   
   function onSubmit(values: z.infer<typeof formSchema>) {
-    startTransition(async () => {
-      const result = await createJobAction(values);
-      if (result.success) {
+    startTransition(() => {
+      // Simulate API call
+      new Promise(resolve => setTimeout(resolve, 1000)).then(() => {
         toast({
-          title: "Job Posted!",
-          description: "Your new job has been successfully posted (simulation).",
+          title: "Job Posted! (Simulation)",
+          description: "Your new job has been successfully posted.",
         });
         form.reset();
         router.push('/farmer');
-      } else {
-        toast({
-          variant: "destructive",
-          title: "Failed to post job",
-          description: result.error,
-        });
-      }
+      });
     });
   }
 

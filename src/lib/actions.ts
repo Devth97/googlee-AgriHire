@@ -18,20 +18,10 @@ const jobFormSchema = z.object({
 
 
 export async function createJobAction(values: z.infer<typeof jobFormSchema>) {
-    const validatedFields = jobFormSchema.safeParse(values);
-
-    if (!validatedFields.success) {
-        return { error: "Invalid data provided." };
-    }
-    
-    // Simulate a successful API call
+    // This is a mock action.
+    console.log("Simulating job creation with values:", values);
     await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    console.log("New job created (mock):", validatedFields.data);
-
-    revalidatePath('/farmer');
-    revalidatePath('/worker');
-    return { success: "Job posted successfully!" };
+    return { success: "Job posted successfully! (simulation)" };
 }
 
 
