@@ -1,9 +1,10 @@
+
 "use server";
 
 import { suggestDescription } from "@/ai/flows/job-description";
 import { z } from "zod";
 import { db } from "@/lib/firebase";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { collection, addDoc, serverTimestamp, doc, updateDoc } from "firebase/firestore";
 import { revalidatePath } from "next/cache";
 
 const schema = z.object({
@@ -74,10 +75,32 @@ export async function createJobAction(values: unknown) {
         });
         
         revalidatePath('/farmer');
+        revalidatePath('/worker');
         return { success: "Job posted successfully!" };
 
     } catch (error) {
         console.error("Error creating job:", error);
         return { error: "Failed to post job." };
     }
+}
+
+
+export async function acceptJobAction(jobId: string) {
+  if (!jobId) {
+    return { error: "Job ID is missing." };
+  }
+
+  try {
+    const jobRef = doc(db, "jobs", jobId);
+    await updateDoc(jobRef, {
+      status: "Confirmed",
+    });
+    
+    revalidatePath('/worker');
+    return { success: true };
+
+  } catch (error) {
+    console.error("Error accepting job:", error);
+    return { error: "Failed to accept the job. Please try again." };
+  }
 }

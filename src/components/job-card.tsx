@@ -1,4 +1,7 @@
-import { Calendar, MapPin, Users, CheckCircle, Clock } from "lucide-react";
+
+"use client";
+
+import { Calendar, MapPin, Users, CheckCircle, Clock, Loader2 } from "lucide-react";
 import Image from 'next/image';
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -10,6 +13,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { useToast } from "@/hooks/use-toast";
+import { acceptJobAction } from "@/lib/actions";
+import { useTransition } from "react";
 
 type Job = {
   id: string;
@@ -34,6 +40,27 @@ const statusColors = {
 };
 
 export function JobCard({ job, userType }: JobCardProps) {
+  const { toast } = useToast();
+  const [isPending, startTransition] = useTransition();
+
+  const handleAcceptJob = () => {
+    startTransition(async () => {
+      const result = await acceptJobAction(job.id);
+      if (result.success) {
+        toast({
+          title: "Job Accepted!",
+          description: "This job has been moved to your confirmed list.",
+        });
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Failed to accept job",
+          description: result.error,
+        });
+      }
+    });
+  };
+  
   return (
     <Card className="flex flex-col h-full hover:shadow-md transition-shadow">
       <CardHeader>
@@ -84,8 +111,14 @@ export function JobCard({ job, userType }: JobCardProps) {
         )}
         {userType === 'worker' && job.status === 'Open' && (
           <div className="flex w-full gap-2">
-            <Button className="w-full" variant="outline">Decline</Button>
-            <Button className="w-full bg-accent text-accent-foreground hover:bg-accent/90">Accept Job</Button>
+            <Button className="w-full" variant="outline" disabled={isPending}>Decline</Button>
+            <Button 
+              className="w-full bg-accent text-accent-foreground hover:bg-accent/90" 
+              onClick={handleAcceptJob}
+              disabled={isPending}
+            >
+              {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Accept Job"}
+            </Button>
           </div>
         )}
         {userType === 'worker' && job.status === 'Confirmed' && (
