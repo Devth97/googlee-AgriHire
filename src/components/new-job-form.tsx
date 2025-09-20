@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { format } from "date-fns";
-import { Calendar as CalendarIcon, Loader2 } from "lucide-react";
+import { Calendar as CalendarIcon, Loader2, Sparkles } from "lucide-react";
 import React, { useTransition } from "react";
 import { useRouter } from "next/navigation";
 
@@ -35,6 +35,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { workTypes, districts } from "@/lib/data";
+import { suggestJobDescription } from "@/ai/ai-job-description-suggestion";
 
 const formSchema = z.object({
   location: z.string().min(1, "Please select a location."),
@@ -52,6 +53,8 @@ export function NewJobForm() {
   const { toast } = useToast();
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  const [isSuggesting, setIsSuggesting] = React.useState(false);
+
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -63,9 +66,43 @@ export function NewJobForm() {
     },
   });
   
+  const handleSuggestDescription = async () => {
+    const { workType, location, date, workersRequired, description } = form.getValues();
+    if (!workType.length || !location || !date) {
+        toast({
+            variant: 'destructive',
+            title: 'Please fill in details',
+            description: 'Work Type, Location, and Date are needed to suggest a description.',
+        });
+        return;
+    }
+    
+    setIsSuggesting(true);
+    try {
+        const result = await suggestJobDescription({
+            workType,
+            location,
+            date: date.toISOString(),
+            numWorkersNeeded: workersRequired,
+            additionalDetails: description,
+        });
+        form.setValue('description', result.jobDescription, { shouldValidate: true });
+    } catch (error) {
+        console.error("AI suggestion failed:", error);
+        toast({
+            variant: 'destructive',
+            title: 'AI Suggestion Failed',
+            description: 'Could not generate a description at this time.',
+        });
+    } finally {
+        setIsSuggesting(false);
+    }
+  };
+
   function onSubmit(values: z.infer<typeof formSchema>) {
     startTransition(() => {
       // Simulate API call
+      console.log("Form submitted with values:", values);
       new Promise(resolve => setTimeout(resolve, 1000)).then(() => {
         toast({
           title: "Job Posted! (Simulation)",
@@ -213,12 +250,25 @@ export function NewJobForm() {
                 name="description"
                 render={({ field }) => (
                   <FormItem>
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between mb-2">
                         <FormLabel>Job Description (Optional)</FormLabel>
+                        <Button 
+                            type="button" 
+                            variant="outline" 
+                            size="sm"
+                            onClick={handleSuggestDescription}
+                            disabled={isSuggesting}
+                        >
+                            {isSuggesting 
+                                ? <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                : <Sparkles className="mr-2 h-4 w-4" />
+                            }
+                            Suggest with AI
+                        </Button>
                     </div>
                     <FormControl>
                       <Textarea
-                        placeholder="Provide details about the work, requirements, and any other relevant information."
+                        placeholder="Provide details about the work, requirements, and any other relevant information. Or, let AI suggest a description for you!"
                         className="resize-none"
                         {...field}
                       />
