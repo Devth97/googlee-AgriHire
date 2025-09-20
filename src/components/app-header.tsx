@@ -1,10 +1,13 @@
+
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   CircleUser,
   CreditCard,
   LogOut,
   Star,
-  Tractor,
   User,
 } from "lucide-react";
 
@@ -20,29 +23,34 @@ import {
 import { Logo } from "./logo";
 
 export function AppHeader() {
+  const pathname = usePathname();
+  const isFarmer = pathname.startsWith('/farmer') || pathname.startsWith('/jobs/new');
+
   return (
     <header className="sticky top-0 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6 z-50 shadow-sm">
       <nav className="hidden flex-col gap-6 text-lg font-medium md:flex md:flex-row md:items-center md:gap-5 md:text-sm lg:gap-6">
-        <Link href="/farmer">
+        <Link href={isFarmer ? "/farmer" : "/worker"}>
           <Logo />
         </Link>
         <Link
-          href="/farmer"
+          href={isFarmer ? "/farmer" : "/worker"}
           className="text-foreground transition-colors hover:text-foreground font-semibold"
         >
           Dashboard
         </Link>
-        <Link
-          href="/jobs/new"
-          className="text-muted-foreground transition-colors hover:text-foreground"
-        >
-          Post a Job
-        </Link>
+        {isFarmer && (
+            <Link
+                href="/jobs/new"
+                className="text-muted-foreground transition-colors hover:text-foreground"
+            >
+                Post a Job
+            </Link>
+        )}
       </nav>
       {/* Mobile Header would go here if needed */}
       <div className="flex w-full items-center justify-between md:justify-end gap-4 md:ml-auto">
         <div className="md:hidden">
-          <Link href="/farmer">
+          <Link href={isFarmer ? "/farmer" : "/worker"}>
             <Logo />
           </Link>
         </div>
