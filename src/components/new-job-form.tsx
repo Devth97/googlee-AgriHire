@@ -99,9 +99,8 @@ export function NewJobForm() {
     }
 
     setIsGenerating(true);
-    const workTypeLabels = watchedWorkType.map(id => workTypes.find(w => w.id === id)?.label || id);
     const formData = new FormData();
-    workTypeLabels.forEach(wt => formData.append('workType', wt));
+    watchedWorkType.forEach(wt => formData.append('workType', wt));
     formData.append('location', watchedLocation);
     
     const result = await generateJobDescriptionAction(formData);
@@ -208,7 +207,6 @@ export function NewJobForm() {
                       control={form.control}
                       name="workType"
                       render={({ field }) => {
-                        const workTypeLabel = item.label;
                         return (
                           <FormItem
                             key={item.id}
@@ -216,13 +214,13 @@ export function NewJobForm() {
                           >
                             <FormControl>
                               <Checkbox
-                                checked={field.value?.includes(workTypeLabel)}
+                                checked={field.value?.includes(item.label)}
                                 onCheckedChange={(checked) => {
                                   return checked
-                                    ? field.onChange([...(field.value || []), workTypeLabel])
+                                    ? field.onChange([...(field.value || []), item.label])
                                     : field.onChange(
                                         field.value?.filter(
-                                          (value) => value !== workTypeLabel
+                                          (value) => value !== item.label
                                         )
                                       );
                                 }}

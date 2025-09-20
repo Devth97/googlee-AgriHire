@@ -50,7 +50,7 @@ const jobFormSchema = z.object({
 });
 
 
-export async function createJobAction(values: unknown) {
+export async function createJobAction(values: z.infer<typeof jobFormSchema>) {
     const validatedFields = jobFormSchema.safeParse(values);
 
     if (!validatedFields.success) {
@@ -60,14 +60,12 @@ export async function createJobAction(values: unknown) {
     const { location, date, workType, workersRequired, description } = validatedFields.data;
 
     try {
-        const workTypesLabels = workType; // Assuming workType is already the label array
-        
         await addDoc(collection(db, "jobs"), {
-            title: `New Job in ${location}`,
+            title: `Job in ${location}`,
             location,
             date: date.toISOString(),
             workersNeeded: workersRequired,
-            workType: workTypesLabels,
+            workType: workType,
             description: description || "",
             status: 'Open',
             farmer: { name: 'You', avatarUrl: 'https://picsum.photos/seed/f5/40/40' },
